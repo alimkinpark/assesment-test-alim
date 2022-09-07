@@ -5,30 +5,35 @@ import FormComponent from "./components/FormComponent";
 import CardComponent from "./components/CardComponent";
 
 function App() {
-  const [username, setUsername] = useState("");
+  const [username, setUsername] = useState("alimkinpark");
   const [loading, setLoading] = useState(false);
   const [git, setGit] = useState([]);
 
   const clickHandler = async (event) => {
     setLoading(true);
-    const url = `https://api.github.com/users/${username}/repos`;
-    const response = await fetch(url);
-    let commits = await response.json();
-    setGit(commits);
-    console.log(commits);
+
+    if (username) {
+      const url = `https://api.github.com/users/${username}/repos`;
+      const response = await fetch(url);
+      let commits = await response.json();
+      setGit(commits?.length ? commits : []);
+    } else {
+      setGit([]);
+    }
+
     setLoading(false);
   };
 
   return (
     <div>
       <NavbarComponent />
-      <div className="container">
+      <div className="container pt-3">
         <div className="row bg-light">
           <div className="col-4"></div>
           <div className="col-4">
             <FormComponent
               loading={loading}
-              value={username}
+              username={username}
               onChange={(e) => setUsername(e.target.value)}
               onClick={() => clickHandler()}
             />
@@ -37,13 +42,15 @@ function App() {
           <div className="col-4"></div>
         </div>
         <div className="row mt-3">
-          {git.map((data) => {
+          {git.length ? git.map((data) => {
             return (
-              <div className="col-12 mb-2" key={data.id}>
+              <div className="col-4 mb-2 text-center" key={data.id}>
                 <CardComponent data={data} />
               </div>
             );
-          })}
+          }) : (
+            <p className="text-center">Repository Tidak ditemukan</p>
+          )}
         </div>
       </div>
     </div>
